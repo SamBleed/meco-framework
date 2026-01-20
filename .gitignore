@@ -1,0 +1,21 @@
+# Secrets & vault
+.vault/
+*.key
+*.pem
+*.gpg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Evidence & logs
+evidence/*
+!evidence/.keep
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
