@@ -1,14 +1,22 @@
-# Usamos la base de Kali que ya conocemos
+# Base de Kali Rolling
 FROM kalilinux/kali-rolling
 
-# Instalamos lo que configuramos (ejemplo)
+# Evitar prompts interactivos
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Solo herramientas esenciales de red y sistema
 RUN apt-get update && apt-get install -y \
     zsh \
     nano \
-    burpsuite \
-    && apt-get clean
+    nmap \
+    python3 \
+    python3-pip \
+    iputils-ping \
+    net-tools \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Aquí podrías copiar tus configuraciones de ayer (.zshrc interno)
-# COPY .zshrc /root/.zshrc
+# Establecemos el directorio de trabajo del framework
+WORKDIR /root/meco-framework
 
+# Iniciamos directamente en ZSH
 ENTRYPOINT ["/bin/zsh"]
