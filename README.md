@@ -11,7 +11,7 @@ MECO is a cybersecurity orchestration framework focused on:
 - Reproducible reporting
 
 ## Project Status
-🧱 MECO v1.0 — Foundation stage (Thesis scope)
+🧱 MECO v0.1 — Foundation stage (Thesis scope)
 
 ## Philosophy
 > A framework does not grow by adding features,  
