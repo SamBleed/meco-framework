@@ -1,0 +1,16 @@
+#!/bin/bash
+# Script de despliegue MECO Framework
+
+# Obtener la ruta actual del proyecto
+PROJECT_DIR=$(pwd)
+
+echo "🚀 Iniciando entorno MECO (Estilo Exegol)..."
+echo "🛡️ Protegiendo SSD con tmpfs en /tmp"
+
+docker run --rm -it \
+  --hostname kali \
+  --name kali-meco \
+  --tmpfs /tmp:rw,noexec,nosuid,size=2g \
+  -v "$PROJECT_DIR":/root/meco-framework \
+  -v ~/kali_shared:/root/shared \
+  kali-personalizado zsh
