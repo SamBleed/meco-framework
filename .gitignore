@@ -3,31 +3,32 @@
 # ==========================================
 
 # --- 1. El Búnker (.vault) ---
-# Bloqueo total de la carpeta de llaves y cualquier secreto
-.vault/
+05-vault/
 *.key
 *.pem
 *.gpg
+*.age
 .env
 
-# --- 2. Inventarios (Datos de Clientes) ---
-# Protegemos las IPs y configuraciones reales
+# --- 2. Protección de Datos de Auditoría (Owl Perú) ---
+# Evitamos subir datos reales de clientes o inventarios críticos
+03-analysis/output/
+06-evidence/**/*
+!06-evidence/.gitkeep
 inventory/*.yaml
 inventory/*.yml
-# Pero permitimos que el ejemplo suba para que se vea la estructura
 !inventory/profile_example.yaml
 
-# --- 3. Evidencia y Logs (Forense) ---
-# No queremos subir gigas de escaneos o logs de clientes a GitLab
-evidence/**/*
-storage/logs/*
-storage/reports/*
-# Mantenemos las carpetas vacías en el repo usando un archivo .gitkeep
-!evidence/.gitkeep
-!storage/logs/.gitkeep
-!storage/reports/.gitkeep
+# --- 3. Basura Temporal y Caché (SSD Protection) ---
+# Ignoramos cualquier residuo que pueda quedar de herramientas pesadas
+/tmp/*
+*.log
+*.tmp
+*.bak
+*.swp
+.cache/
 
-# --- 4. Python & Entorno ---
+# --- 4. Python & Entorno de Desarrollo ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -35,10 +36,18 @@ __pycache__/
 env/
 venv/
 .pytest_cache/
+.python-version
 
-# --- 5. Sistema y Editores ---
+# --- 5. Herramientas y Binarios ---
+# No subimos binarios compilados, solo el código fuente
+bin/debug/
+*.exe
+*.so
+*.bin
+
+# --- 6. Sistema y Editores ---
 .DS_Store
 .vscode/
 .idea/
-*.swp
-*.bak
+.obsidian/workspace.json
+.obsidian/appearance.json
