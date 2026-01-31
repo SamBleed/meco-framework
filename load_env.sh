@@ -36,4 +36,25 @@ fi
 # Evitar que pregunte por la autenticidad de GitLab cada vez
 echo -e "Host gitlab.com\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
 
+# === MOTOR DE SINCRONIZACIÓN MECO (FUNCIÓN) ===
+meco-sync() {
+    echo "[*] Aplicando capas de seguridad..."
+    
+    # Escaneo de secretos antes de proceder
+    git secrets --scan
+    if [ $? -eq 0 ]; then
+        echo "[+] Escaneo limpio. Preparando commit firmado..."
+        git add .
+        # Crea el commit firmado con la fecha actual
+        git commit -S -m "sync: actualización de laboratorio $(date +'%Y-%m-%d %H:%M')"
+        
+        echo "[*] Subiendo cambios a GitLab..."
+        git push origin main
+        echo "[+] Sincronización blindada completada con éxito. 🛡️"
+    else
+        echo "[!] ERROR: Se detectaron posibles secretos (DNI, Passwords, Keys)."
+        echo "[!] El commit ha sido abortado por seguridad."
+    fi
+}
+
 echo "[+] Entorno blindado y listo para firmar commits."
