@@ -51,3 +51,9 @@ bin/debug/
 .idea/
 .obsidian/workspace.json
 .obsidian/appearance.json
+
+# --- 7. Seguridad Forense y RAM ---
+*.mem          # Volcados de memoria accidentales
+*.raw          # Imágenes de disco crudas
+.nfs* # Archivos temporales de red
+core.* # Core dumps del sistema si algo falla
