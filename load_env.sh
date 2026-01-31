@@ -25,4 +25,15 @@ if ! command -v git-secrets &> /dev/null; then
     git secrets --install -f &>/dev/null
 fi
 
+# 4. Configuración de SSH para GitLab
+mkdir -p /root/.ssh
+if [ -f "/root/meco-framework/05-vault/id_ed25519" ]; then
+    cp /root/meco-framework/05-vault/id_ed25519 /root/.ssh/id_ed25519
+    chmod 600 /root/.ssh/id_ed25519
+    echo "[+] Llave SSH inyectada correctamente."
+fi
+
+# Evitar que pregunte por la autenticidad de GitLab cada vez
+echo -e "Host gitlab.com\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
+
 echo "[+] Entorno blindado y listo para firmar commits."
