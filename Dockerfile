@@ -4,25 +4,46 @@ FROM kalilinux/kali-rolling
 # Evitar prompts interactivos
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalación de herramientas y librerías de Python para la V1
+# 1. Instalación de Herramientas de Sistema y UX (Estilo Exegol)
 RUN apt-get update && apt-get install -y \
     zsh \
+    sudo \
+    curl \
+    wget \
+    git \
+    lsd \
+    bat \
+    ripgrep \
+    htop \
     nano \
+    vim \
+    && apt-get clean
+
+# 2. Instalación de Herramientas de Ciberseguridad y Red
+RUN apt-get install -y \
     nmap \
+    iputils-ping \
+    net-tools \
+    whois \
+    && apt-get clean
+
+# 3. Músculo Analítico (Python para la V1)
+RUN apt-get install -y \
     python3 \
     python3-pip \
-    # Librerías esenciales para MECO v1.0
     python3-pandas \
     python3-openpyxl \
     python3-gnupg \
     python3-yaml \
-    # Herramientas de red y sistema
-    iputils-ping \
-    net-tools \
+    python3-requests \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Establecemos el directorio de trabajo del framework
-WORKDIR /root/meco-framework
+# Configuración de Alias para UX Profesional
+RUN echo "alias ls='lsd --group-directories-first'" >> /root/.zshrc && \
+    echo "alias ll='lsd -l --group-directories-first'" >> /root/.zshrc && \
+    echo "alias cat='batcat --style=plain'" >> /root/.zshrc && \
+    echo "alias grep='rg'" >> /root/.zshrc
 
-# Iniciamos directamente en ZSH
+# Configuración de entorno
+WORKDIR /root/meco-framework
 ENTRYPOINT ["/bin/zsh"]

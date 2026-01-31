@@ -6,6 +6,9 @@
 ## 📖 Overview
 MECO es un framework de orquestación de ciberseguridad enfocado en la estandarización de procesos tácticos para entornos empresariales (SOC L1 / Blue Team). Su objetivo es automatizar tareas repetitivas de auditoría y asegurar la integridad de la evidencia recolectada.
 
+### 🔄 Ciclo de Desarrollo y CI/CD Manual
+Se implementó un flujo de trabajo de **Integración Continua (CI) manual**, donde las actualizaciones del Engine se compilan localmente para validación de herramientas de UX (`lsd`, `batcat`) y posteriormente se sincronizan con el registro de GitLab mediante capas (*layers*) optimizadas, reduciendo el consumo de ancho de banda al reutilizar componentes existentes.
+
 * **Automated security auditing**: Escaneos y recolección de datos eficiente con Nmap y Python.
 * **CIS-based hardening**: Aplicación de políticas de seguridad y optimización de infraestructura.
 * **Evidence generation**: Gestión íntegra de pruebas para auditoría mediante volúmenes persistentes.
