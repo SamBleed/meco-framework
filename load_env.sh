@@ -58,3 +58,5 @@ meco-sync() {
 }
 
 echo "[+] Entorno blindado y listo para firmar commits."
+# Auto-vinculación de identidad GPG SamBleed
+gpg --import /root/meco-framework/sambleed.pub 2>/dev/null && echo "[+] Identidad criptográfica vinculada al SOC Engine."
