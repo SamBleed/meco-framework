@@ -57,3 +57,4 @@ bin/debug/
 *.raw          # Imágenes de disco crudas
 .nfs* # Archivos temporales de red
 core.* # Core dumps del sistema si algo falla
+05-vault/cefop_secrets.yml.gpg
