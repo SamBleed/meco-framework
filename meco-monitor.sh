@@ -1,19 +1,30 @@
 #!/bin/bash
-TRAP_FILE="$HOME/meco-framework/db_backup.sql.gz"
+TRAP_FILE="/home/sam/meco-framework/db_backup.sql.gz"
 
-echo "🐝 HoneyPot IPS Activo: Vigilando y Protegiendo..."
+echo "🐝 Monitor de Respuesta Activa [ON]"
+echo "🔎 Esperando intrusos en $TRAP_FILE..."
 
-inotifywait -m -e access -e open "$TRAP_FILE" |
+# Usamos lsof para identificar quién toca el archivo en tiempo real
+inotifywait -m -e access -e open -e modify "/home/sam/meco-framework/db_backup.sql.gz" |
 while read path action file; do
-    echo -e "\n🚨 [CRÍTICO] - ACCESO DETECTADO - BLOQUEANDO..."
+    # 1. Intentamos capturar el PID (si es muy rápido, lsof puede fallar)
+    ATTACKER_PID=$(lsof -t "$TRAP_FILE")
 
-    # Simulación de bloqueo: Aquí podrías poner 'sudo ufw deny from IP'
-    # Por ahora, cerramos el acceso al archivo para todos como medida de emergencia
-    chmod 000 "$TRAP_FILE"
+    # 2. Si lsof no lo pilló, buscamos al servidor Python en el puerto 8080
+    if [ -z "$ATTACKER_PID" ]; then
+        ATTACKER_PID=$(lsof -t -i:8080)
+    fi
 
-    echo "🔒 Hardening de emergencia aplicado: Permisos de $file revocados (000)."
-    notify-send "🚫 ATAQUE DETECTADO" "Acceso a HoneyPot. Archivo bloqueado automáticamente."
+    # 3. Solo ejecutamos ps si tenemos un PID válido para evitar el error de sintaxis
+    if [ ! -z "$ATTACKER_PID" ]; then
+        ATTACKER_NAME=$(ps -p $ATTACKER_PID -o comm=)
+    else
+        ATTACKER_NAME="Desconocido (Rápido)"
+    fi
 
-    # Guardar en log para tu reporte de SENATI
-    echo "$(date) - ACCESO DETECTADO - ACCIÓN: BLOQUEO DE ARCHIVO" >> ~/Documentos/CyberBrain/incidentes_meco.log
+    echo -e "\n🚨 [ALERTA SOC] - INTRUSIÓN DETECTADA - 🚨"
+    echo "🎯 PROCESO IDENTIFICADO: $ATTACKER_PID ($ATTACKER_NAME)"
+
+    # 4. Lanzar el sniffer usando RUTA ABSOLUTA para que sudo lo encuentre
+    bash /home/sam/Documentos/Projects/meco-framework/bin/meco-sniff.sh &
 done
