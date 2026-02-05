@@ -1,43 +1,53 @@
-# 🛡️ MECO-ENGINE V1.4.1 (SECURE & PERSISTENT)
-# Base de Kali Rolling
-FROM kalilinux/kali-rolling
+# 1. BASE: Usamos tu imagen de 19.5GB (Mantenemos todos los músculos)
+FROM meco-engine:v2.5-god
+LABEL maintainer="SamBleed <@SamBleed>"
 
+# 2. VARIABLES DE ENTORNO
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH="$PATH:/usr/local/go/bin:/root/go/bin"
+ENV LANG="es_ES.UTF-8"
+ENV COLORTERM=truecolor
+ENV MECO_ENV="CONTAINER"
 
-# 1. Herramientas base + Firma + Edición + Python
-# Se añade 'nano' y 'pinentry-curses' para que GPG funcione correctamente
+ARG GITLAB_TOKEN
+
+# 3. LIMPIEZA QUIRÚRGICA
+RUN rm -rf /root/.zshrc /root/.zshrc.bak /root/.zshrc.tmp /root/dotfiles /root/.zsh_history
+
+# 3.5. INSTALACIÓN DE PLUGINS (Para el autocompletado y colores)
 RUN apt-get update && apt-get install -y \
-    zsh curl wget git sudo lsd bat ripgrep htop fzf ncdu tealdeer \
-    nmap iputils-ping net-tools whois gnupg make pinentry-curses \
-    nano \
-    python3 python3-pip python3-pandas python3-gnupg python3-yaml \
+    zsh-autosuggestions \
+    zsh-syntax-highlighting \
     && apt-get clean
 
-# 2. Instalación de git-secrets (Prevención de fugas DLP)
-RUN git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets && \
-    cd /tmp/git-secrets && make install && rm -rf /tmp/git-secrets
+# 4. IDENTIDAD GLOBAL (El nuevo Cerebro v10 desde GitLab)
+RUN git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/SamBleed/dotfiles.git /root/dotfiles && \
+    cd /root/dotfiles && \
+    chmod +x install.sh && \
+    ./install.sh && \
+    rm -rf /root/dotfiles
 
-# 3. Oh My Zsh y Plugins (Zsh-Autosuggestions & Syntax Highlighting)
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+# 5. CONFIGURACIÓN DE PORTABILIDAD
+RUN echo "# --- SAMBLEED PORTABLE OVERRIDE ---" > /root/.zshrc.local && \
+    echo "export MECO_ENV='CONTAINER'" >> /root/.zshrc.local && \
+    echo "export LOCAL_IP=\$(hostname -i 2>/dev/null | awk '{print \$1}')" >> /root/.zshrc.local && \
+    echo "export SECRET_KEY_BASE=$(openssl rand -hex 64)" >> /root/.zshrc.local && \
+    echo "alias db-up='sudo service postgresql start && msfdb init'" >> /root/.zshrc.local && \
+    echo "alias msf='msfconsole -q'" >> /root/.zshrc.local && \
+    echo "alias meco-go='cd /root/meco-framework'" >> /root/.zshrc.local
 
-# 4. Configuración del .zshrc (Alias, Plugins y Ancla de Persistencia)
-RUN sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/' ~/.zshrc && \
-    echo "alias ls='lsd --group-directories-first'" >> ~/.zshrc && \
-    echo "alias ll='lsd -l --group-directories-first'" >> ~/.zshrc && \
-    echo "alias cat='batcat --style=plain'" >> ~/.zshrc && \
-    echo "alias tldr='tealdeer'" >> ~/.zshrc && \
-    echo "PROMPT='%F{cyan}MECO%f:%F{yellow}%~%f %# '" >> ~/.zshrc && \
-    # --- ESTA ES LA LÍNEA CLAVE DE PERSISTENCIA ---
-    echo "source /root/meco-framework/load_env.sh" >> ~/.zshrc
+# 6. EL FRAMEWORK (Tu Proyecto de Mejora - Tesis)
+WORKDIR /root
+RUN rm -rf /root/meco-framework && \
+    git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/SamBleed/meco-framework.git /root/meco-framework
 
-# 5. Fix de Hostname y Banner de Bienvenida
-# Evita el error "unable to resolve host" inyectando el host al iniciar cada sesión
-RUN echo "echo '127.0.0.1 kali' >> /etc/hosts 2>/dev/null" >> ~/.zshrc && \
-    echo "echo ' '" >> ~/.zshrc && \
-    echo "echo ' 🛡️  MECO FRAMEWORK - ENGINE V1.4.1 (SECURE) 🛡️'" >> ~/.zshrc && \
-    echo "echo ' [+] Status: Identity & Vault Loaded'" >> ~/.zshrc
+# 7. NORMALIZACIÓN DE HERRAMIENTAS
+RUN ln -sf $(which fdfind) /usr/local/bin/fd && \
+    if [ -f /usr/bin/batcat ]; then ln -sf /usr/bin/batcat /usr/local/bin/bat; fi
 
+# 8. MANTENIMIENTO SSD
+RUN rm -rf /tmp/* /var/lib/apt/lists/*
+
+# 9. PUNTO DE ENTRADA
 WORKDIR /root/meco-framework
 ENTRYPOINT ["/bin/zsh"]
